@@ -1,0 +1,92 @@
+{% load static %}
+
+<!-- templates/includes/header.html -->
+<header class="site-header">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand" href="{% url 'products:list' %}" aria-label="Achadinhos - Página inicial">
+                <span class="navbar-brand fw-bold text-primary">
+                    <i class="fas fa-tags"></i> Achadinhos
+                </span>
+            </a>
+            
+            <!-- Botão Mobile -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <button class="btn btn-outline-light btn-sm ms-2" onclick="toggleDarkMode()" aria-label="Alternar modo escuro">
+                <i class="fas fa-moon"></i>
+            </button>
+            
+            <!-- Menu -->
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'products:list' %}">
+                            <i class="fas fa-home"></i> Início
+                        </a>
+                    </li>
+                    
+                    <!-- Categorias Dropdown -->
+                    {% if request.resolver_match.url_name != 'price_drops' and request.resolver_match.url_name != 'product_detail' and request.resolver_match.url_name != 'category_detail' %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-tags"></i> Categorias
+                            </a>
+                            <ul class="dropdown-menu">
+                                {% for category in categories %}
+                                    {% if category.subcategories.exists %}
+                                        <li class="dropdown-submenu">
+                                            <a class="dropdown-item" href="{{ category.get_absolute_url }}">
+                                                {{ category.name }}
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                {% for sub in category.subcategories.all %}
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ sub.get_absolute_url }}">
+                                                            {{ sub.name }}
+                                                        </a>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </li>
+                                    {% else %}
+                                        <li>
+                                            <a class="dropdown-item" href="{{ category.get_absolute_url }}">
+                                                {{ category.name }}
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endif %}
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'products:price_drops' %}">
+                            <i class="fas fa-arrow-down text-danger"></i> Quedas de Preço
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'blog:list' %}">
+                            <i class="fas fa-blog"></i> Blog
+                        </a>
+                    </li>
+                </ul>
+                
+                <!-- Busca -->
+                <form class="d-flex" action="{% url 'products:list' %}" method="GET" role="search">
+                    <div class="input-group">
+                        <input class="form-control" type="search" name="q" placeholder="Buscar produtos..." aria-label="Buscar">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </nav>
+</header>

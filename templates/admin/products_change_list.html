@@ -1,0 +1,11 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools %}
+    <div style="margin-bottom: 10px;">
+        <a href="{% url 'admin:import_product' %}" 
+           style="background: #667eea; color: #fff; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; display: inline-block;">
+            <i class="fas fa-download"></i> Importar Produto
+        </a>
+    </div>
+    {{ block.super }}
+{% endblock %}

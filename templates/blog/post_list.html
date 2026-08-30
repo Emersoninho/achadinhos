@@ -1,0 +1,143 @@
+<!-- templates/blog/post_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ meta_title|default:'Blog | Achadinhos' }}{% endblock %}
+{% block meta_description %}{{ meta_description|default:'Dicas e reviews para economizar' }}{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="bg-light py-2">
+    <div class="container">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <a href="{% url 'products:list' %}">Início</a>
+            </li>
+            <li class="breadcrumb-item active">Blog</li>
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Sidebar -->
+    <aside class="col-lg-3">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h6 mb-0"><i class="fas fa-folder"></i> Categorias</h2>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    {% for category in categories %}
+                    <li class="mb-2">
+                        <a href="{% url 'blog:category' category.slug %}" class="text-decoration-none">
+                            <i class="fas fa-angle-right"></i> {{ category.name }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        
+        {% comment %} <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h6 mb-0"><i class="fas fa-search"></i> Buscar</h2>
+            </div>
+            <div class="card-body">
+                <form action="{% url 'blog:list' %}" method="GET">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Buscar artigos...">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div> {% endcomment %}
+    </aside>
+    
+    <!-- Lista de Posts -->
+    <div class="col-lg-9">
+        <h1 class="h2 mb-4">
+            <i class="fas fa-blog text-primary"></i> Blog Achadinhos
+        </h1>
+        
+        <div class="row g-4">
+            {% for post in posts %}
+            <div class="col-md-6">
+                <article class="card h-100 shadow-sm post-card">
+                    {% if post.cover_image %}
+                    <img src="{{ post.cover_image }}" class="card-img-top" alt="{{ post.title }}" loading="lazy">
+                    {% endif %}
+                    
+                    <div class="card-body d-flex flex-column">
+                        <div class="mb-2">
+                            <span class="badge bg-secondary">{{ post.get_post_type_display }}</span>
+                            {% if post.category %}
+                            <a href="{% url 'blog:category' post.category.slug %}" class="badge bg-primary text-decoration-none">
+                                {{ post.category.name }}
+                            </a>
+                            {% endif %}
+                        </div>
+                        
+                        <h2 class="h5 card-title">
+                            <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
+                                {{ post.title }}
+                            </a>
+                        </h2>
+                        
+                        <p class="card-text text-muted small">
+                            {{ post.summary|truncatechars:150 }}
+                        </p>
+                        
+                        <div class="mt-auto d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="far fa-calendar"></i> {{ post.published_at|date:"d/m/Y" }}
+                            </small>
+                            <a href="{{ post.get_absolute_url }}" class="btn btn-sm btn-outline-primary">
+                                Ler mais <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Nenhum artigo publicado ainda.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Paginação -->
+        {% if is_paginated %}
+        <nav aria-label="Paginação" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+                    </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

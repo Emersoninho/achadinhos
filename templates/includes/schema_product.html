@@ -1,0 +1,38 @@
+<!-- templates/includes/schema_product.html -->
+{% if product %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "{{ product.name }}",
+    "description": "{{ product.meta_description|default:product.short_description|default:product.name }}",
+    "image": "{{ product.main_image }}",
+    "url": "{{ request.build_absolute_uri }}",
+    "sku": "{{ product.sku|default:product.slug }}",
+    {% if product.brand %}
+    "brand": {
+        "@type": "Brand",
+        "name": "{{ product.brand }}"
+    },
+    {% endif %}
+    {% if product.current_price %}
+    "offers": {
+        "@type": "Offer",
+        "url": "{{ request.build_absolute_uri }}",
+        "priceCurrency": "BRL",
+        "price": "{{ product.current_price }}",
+        "availability": "{% if product.status == 'active' %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}"
+    },
+    {% endif %}
+    {% if product.rating %}
+    "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "{{ product.rating }}",
+        "reviewCount": "{{ product.review_count }}",
+        "bestRating": "5",
+        "worstRating": "0"
+    }
+    {% endif %}
+}
+</script>
+{% endif %}

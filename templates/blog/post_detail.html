@@ -1,0 +1,203 @@
+<!-- templates/blog/post_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ meta_title|default:post.title }}{% endblock %}
+{% block meta_description %}{{ meta_description|default:post.summary }}{% endblock %}
+
+{% block og_type %}article{% endblock %}
+{% block og_image %}{{ post.cover_image }}{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="bg-light py-2">
+    <div class="container">
+        <ol class="breadcrumb mb-0" itemscope itemtype="https://schema.org/BreadcrumbList">
+            <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a href="{% url 'products:list' %}" itemprop="item">
+                    <span itemprop="name">Início</span>
+                </a>
+                <meta itemprop="position" content="1">
+            </li>
+            <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a href="{% url 'blog:list' %}" itemprop="item">
+                    <span itemprop="name">Blog</span>
+                </a>
+                <meta itemprop="position" content="2">
+            </li>
+            {% if post.category %}
+            <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a href="{% url 'blog:category' post.category.slug %}" itemprop="item">
+                    <span itemprop="name">{{ post.category.name }}</span>
+                </a>
+                <meta itemprop="position" content="3">
+            </li>
+            {% endif %}
+            <li class="breadcrumb-item active" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <span itemprop="name">{{ post.title|truncatechars:50 }}</span>
+                <meta itemprop="position" content="4">
+            </li>
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<article class="row" itemscope itemtype="https://schema.org/BlogPosting">
+    <div class="col-lg-8 mx-auto">
+        <!-- Cabeçalho do Post -->
+        <header class="mb-4">
+            <div class="mb-3">
+                <span class="badge bg-secondary">{{ post.get_post_type_display }}</span>
+                {% if post.category %}
+                <a href="{% url 'blog:category' post.category.slug %}" class="badge bg-primary text-decoration-none">
+                    {{ post.category.name }}
+                </a>
+                {% endif %}
+            </div>
+            
+            <h1 class="display-5 fw-bold mb-3" itemprop="headline">{{ post.title }}</h1>
+            
+            <div class="d-flex align-items-center text-muted mb-3">
+                <span class="me-3">
+                    <i class="far fa-user"></i> 
+                    {{ post.author.get_full_name|default:post.author.username|default:"Equipe Achadinhos" }}
+                </span>
+                <span class="me-3">
+                    <i class="far fa-calendar"></i> 
+                    {{ post.published_at|date:"d/m/Y H:i" }}
+                </span>
+                <span>
+                    <i class="far fa-clock"></i> 
+                    {{ post.content|wordcount }} palavras
+                </span>
+            </div>
+            
+            {% if post.summary %}
+            <p class="lead" itemprop="description">{{ post.summary }}</p>
+            {% endif %}
+        </header>
+        
+        <!-- Imagem de Capa -->
+        {% if post.cover_image %}
+        <img src="{{ post.cover_image }}" class="img-fluid rounded mb-4" alt="{{ post.title }}" itemprop="image">
+        {% endif %}
+        
+        <!-- Conteúdo -->
+        <div class="post-content" itemprop="articleBody">
+            {{ post.content|safe }}
+        </div>
+        
+        <!-- Produtos Mencionados -->
+        {% if product_mentions %}
+        <section class="mt-5">
+            <h2 class="h3 mb-4">
+                <i class="fas fa-shopping-cart text-primary"></i> Produtos Mencionados
+            </h2>
+            
+            <div class="row g-4">
+                {% for mention in product_mentions %}
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm">
+                        {% if mention.position %}
+                        <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2">
+                            #{{ mention.position }}
+                        </span>
+                        {% endif %}
+                        
+                        {% if mention.product.main_image %}
+                        <img src="{{ mention.product.main_image }}" class="card-img-top" alt="{{ mention.product.name }}" loading="lazy">
+                        {% endif %}
+                        
+                        <div class="card-body">
+                            <h3 class="h6 card-title">{{ mention.product.name }}</h3>
+                            
+                            {% if mention.score %}
+                            <div class="mb-2">
+                                <span class="badge bg-success">Nota: {{ mention.score }}</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if mention.editor_notes %}
+                            <p class="card-text small text-muted">{{ mention.editor_notes }}</p>
+                            {% endif %}
+                            
+                            {% if mention.product.current_price %}
+                            <p class="fw-bold text-success">
+                                R$ {{ mention.product.current_price|floatformat:2 }}
+                            </p>
+                            {% endif %}
+                            
+                            {% if mention.recommended_link %}
+                            <a href="{{ mention.recommended_link.get_affiliate_url }}" 
+                               class="btn btn-success btn-sm w-100" 
+                               target="_blank" 
+                               rel="nofollow sponsored">
+                                <i class="fas fa-shopping-cart"></i> 
+                                Comprar na {{ mention.recommended_link.platform.name }}
+                            </a>
+                            {% else %}
+                            <a href="{{ mention.product.get_absolute_url }}" class="btn btn-primary btn-sm w-100">
+                                <i class="fas fa-eye"></i> Ver Detalhes
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+        
+        <!-- Compartilhar -->
+        <div class="d-flex gap-2 my-4">
+            <span class="fw-bold">Compartilhar:</span>
+            <a href="https://api.whatsapp.com/send?text={{ post.title }} - {{ request.build_absolute_uri }}" 
+               target="_blank" class="text-success" aria-label="Compartilhar no WhatsApp">
+                <i class="fab fa-whatsapp fa-2x"></i>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" 
+               target="_blank" class="text-primary" aria-label="Compartilhar no Facebook">
+                <i class="fab fa-facebook fa-2x"></i>
+            </a>
+            <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ post.title }}" 
+               target="_blank" class="text-info" aria-label="Compartilhar no Twitter">
+                <i class="fab fa-twitter fa-2x"></i>
+            </a>
+        </div>
+    </div>
+</article>
+
+<!-- Posts Relacionados -->
+{% if related_posts %}
+<section class="mt-5">
+    <h2 class="h3 mb-4">
+        <i class="fas fa-link text-primary"></i> Posts Relacionados
+    </h2>
+    <div class="row g-4">
+        {% for related in related_posts %}
+        <div class="col-md-3">
+            <article class="card h-100 shadow-sm">
+                {% if related.cover_image %}
+                <img src="{{ related.cover_image }}" class="card-img-top" alt="{{ related.title }}" loading="lazy">
+                {% endif %}
+                <div class="card-body">
+                    <h3 class="h6 card-title">
+                        <a href="{{ related.get_absolute_url }}" class="text-decoration-none text-dark">
+                            {{ related.title|truncatechars:60 }}
+                        </a>
+                    </h3>
+                </div>
+            </article>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<!-- Schema.org JSON-LD -->
+<script type="application/ld+json">
+{{ schema_data|safe }}
+</script>
+{% endblock %}

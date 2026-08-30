@@ -1,0 +1,131 @@
+<!-- templates/products/category_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ meta_title|default:category.name }}{% endblock %}
+{% block meta_description %}{{ meta_description|default:category.description }}{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="bg-light py-2">
+    <div class="container">
+        <ol class="breadcrumb mb-0" itemscope itemtype="https://schema.org/BreadcrumbList">
+            <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a href="{% url 'products:list' %}" itemprop="item">
+                    <span itemprop="name">Início</span>
+                </a>
+                <meta itemprop="position" content="1">
+            </li>
+            <li class="breadcrumb-item active" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <span itemprop="name">{{ category.name }}</span>
+                <meta itemprop="position" content="2">
+            </li>
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Sidebar de Subcategorias -->
+    {% if subcategories %}
+    <aside class="col-lg-3">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h6 mb-0"><i class="fas fa-folder"></i> Subcategorias</h2>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    {% for sub in subcategories %}
+                    <li class="mb-2">
+                        <a href="{{ sub.get_absolute_url }}" class="text-decoration-none">
+                            <i class="fas fa-angle-right"></i> {{ sub.name }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </aside>
+    {% endif %}
+    
+    <!-- Lista de Produtos da Categoria -->
+    <div class="{% if subcategories %}col-lg-9{% else %}col-12{% endif %}">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h2 mb-0">
+                <i class="fas fa-tags text-primary"></i> {{ category.name }}
+            </h1>
+            <span class="badge bg-secondary">
+                {{ products.count }} produto(s)
+            </span>
+        </div>
+        
+        <!-- Descrição da Categoria -->
+        {% if category.description %}
+        <div class="alert alert-light border mb-4">
+            {{ category.description }}
+        </div>
+        {% endif %}
+        
+        <!-- Grid de Produtos -->
+        <div class="row g-4">
+            {% for product in products %}
+                <div class="col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                    {% include 'includes/product_card.html' with product=product %}
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Nenhum produto nesta categoria ainda.
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Paginação -->
+        {% if is_paginated %}
+        <nav aria-label="Paginação" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Anterior">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Próximo">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "{{ category.name }}",
+    "description": "{{ category.meta_description|default:category.description }}",
+    "url": "{{ request.build_absolute_uri }}",
+    "numberOfItems": {{ products.count }}
+}
+</script>
+{% endblock %}

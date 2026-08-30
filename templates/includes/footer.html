@@ -1,0 +1,35 @@
+<!-- templates/includes/footer.html -->
+{% load static %}
+
+<footer class="site-footer py-4 mt-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <!-- Logo -->
+            <div class="col-md-4 mb-3 mb-md-0">
+                <span class="fw-bold text-primary">
+                    <i class="fas fa-tags"></i> Achadinhos
+                </span>
+            </div>
+            
+            <!-- Links -->
+            <div class="col-md-4 mb-3 mb-md-0 text-center">
+                <a href="{% url 'products:list' %}" class="text-decoration-none mx-2" style="color: #495057;">
+                    Início
+                </a>
+                <a href="{% url 'products:price_drops' %}" class="text-decoration-none mx-2" style="color: #495057;">
+                    Ofertas
+                </a>
+                <a href="{% url 'blog:list' %}" class="text-decoration-none mx-2" style="color: #495057;">
+                    Blog
+                </a>
+            </div>
+            
+            <!-- Copyright -->
+            <div class="col-md-4 text-md-end">
+                <small style="color: #495057;">
+                    © {% now "Y" %} Achadinhos
+                </small>
+            </div>
+        </div>
+    </div>
+</footer>
