@@ -59,6 +59,17 @@
                                         -{{ product.get_discount_percentage|floatformat:0 }}%
                                     </span>
                                 </div>
+
+                                <!-- Adicione a data -->
+                                <small class="opacity-75 mb-3 d-block">
+                                    <i class="fas fa-clock"></i> 
+                                    {% if product.price_updated_at %}
+                                        Preço verificado em: {{ product.price_updated_at|date:"d/m/Y" }}
+                                    {% else %}
+                                        Preço verificado em: {{ product.updated_at|date:"d/m/Y" }}
+                                    {% endif %}
+                                </small>
+
                                 <a href="{{ product.get_absolute_url }}" class="btn btn-light btn-lg fw-bold">
                                     <i class="fas fa-shopping-cart"></i> Ver Oferta
                                 </a>
