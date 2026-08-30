@@ -417,3 +417,11 @@ h1, h2, h3 {
     background: #16213e !important;
     color: #e0e0e0 !important;
 }
+
+.flex-grow-1 {
+    flex-grow: 1 !important;
+}
+
+.min-vh-100 {
+    min-height: 100vh !important;
+}

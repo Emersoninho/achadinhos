@@ -90,7 +90,7 @@
 </script>
 
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <!-- Header -->
     {% include 'includes/header.html' %}
 
@@ -110,7 +110,7 @@
     {% comment %} {% block breadcrumb %}{% endblock %} {% endcomment %}
     
     <!-- Conteúdo Principal -->
-    <main class="container mt-4">
+    <main class="container mt-4 flex-grow-1">
         {% block content %}{% endblock %}
     </main>
     
