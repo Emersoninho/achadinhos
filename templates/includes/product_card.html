@@ -71,18 +71,28 @@
                     <span class="h5 text-success fw-bold mb-0" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
                         <meta itemprop="price" content="{{ product.current_price }}">
                         <meta itemprop="priceCurrency" content="BRL">
-                        R$ {{ product.current_price|floatformat:2 }}
+                        R$ {{ product.current_price|format_brl }}
                     </span>
                     
                     {% if product.original_price %}
                     <small class="text-muted text-decoration-line-through">
-                        R$ {{ product.original_price|floatformat:2 }}
+                        R$ {{ product.original_price|format_brl }}
                     </small>
                     {% endif %}
                 {% else %}
                     <span class="text-muted">Preço sob consulta</span>
                 {% endif %}
             </div>
+            
+            <!-- Data de verificação -->
+            <small class="text-muted d-block mt-1">
+                <i class="fas fa-clock"></i> 
+                {% if product.price_updated_at %}
+                    {{ product.price_updated_at|date:"d/m/Y" }}
+                {% else %}
+                    {{ product.updated_at|date:"d/m/Y" }}
+                {% endif %}
+            </small>
             
             <!-- Botão -->
             <div class="mt-2">
@@ -91,5 +101,4 @@
                 </a>
             </div>
         </div>
-    </div>
 </article>
