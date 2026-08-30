@@ -12,6 +12,8 @@ from django import forms
 import requests
 from bs4 import BeautifulSoup
 from .scraper import ProductScraper
+from django.utils import timezone
+from .scraper import ProductScraper
 
 
 @admin.register(Category)
@@ -69,7 +71,7 @@ class ProductAdmin(admin.ModelAdmin):
     ]
     list_select_related = ['category']
     list_per_page = 50
-    actions = ['make_active', 'make_draft', 'mark_featured', 'unmark_featured']
+    actions = ['make_active', 'make_draft', 'mark_featured', 'unmark_featured', 'update_prices']
     
     fieldsets = (
         ('Informações Básicas', {
@@ -155,6 +157,46 @@ class ProductAdmin(admin.ModelAdmin):
     unmark_featured.short_description = 'Remover destaque'
 
     change_list_template = 'admin/products_change_list.html'
+
+    @admin.action(description="Atualizar preços via scraping")
+    def update_prices(self, request, queryset):
+        updated = 0
+        failed = 0
+        
+        for product in queryset:
+            # Pega o primeiro link de afiliado ativo
+            link = product.links.filter(active=True).first()
+            
+            if link:
+                try:
+                    scraper = ProductScraper(link.affiliate_url, link.platform.code)
+                    data = scraper.scrape()
+                    
+                    if 'current_price' in data:
+                        link.current_price = data['current_price']
+                        link.last_synced_at = timezone.now()
+                        link.save()
+                        
+                        # Atualiza o preço no produto
+                        product.current_price = data['current_price']
+                        product.price_updated_at = timezone.now()
+                        product.save()
+                        
+                        updated += 1
+                    else:
+                        failed += 1
+                        
+                except Exception as e:
+                    failed += 1
+                    link.sync_error = str(e)[:255]
+                    link.save()
+            else:
+                failed += 1
+        
+        self.message_user(
+            request, 
+            f'{updated} produtos atualizados, {failed} falhas'
+        )
 
     def get_urls(self):
         urls = super().get_urls()
