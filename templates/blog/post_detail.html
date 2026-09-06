@@ -88,65 +88,59 @@
         </div>
         
         <!-- Produtos Mencionados -->
-        {% if product_mentions %}
-        <section class="mt-5">
-            <h2 class="h3 mb-4">
-                <i class="fas fa-shopping-cart text-primary"></i> Produtos Mencionados
-            </h2>
-            
-            <div class="row g-4">
-                {% for mention in product_mentions %}
-                <div class="col-md-6">
-                    <div class="card h-100 shadow-sm">
-                        {% if mention.position %}
-                        <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2">
-                            #{{ mention.position }}
-                        </span>
-                        {% endif %}
+        {% for mention in product_mentions %}
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm position-relative">
+                    {% if mention.position %}
+                    <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2">
+                        #{{ mention.position }}
+                    </span>
+                    {% endif %}
+                    
+                    {% if mention.product.main_image %}
+                    <img src="{{ mention.product.main_image }}" 
+                        class="card-img-top" 
+                        alt="{{ mention.product.name }}" 
+                        loading="lazy"
+                        style="height: 180px; object-fit: contain; padding: 10px; background: #f8f9fa;">
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <h3 class="h6 card-title">{{ mention.product.name }}</h3>
                         
-                        {% if mention.product.main_image %}
-                        <img src="{{ mention.product.main_image }}" class="card-img-top" alt="{{ mention.product.name }}" loading="lazy">
-                        {% endif %}
-                        
-                        <div class="card-body">
-                            <h3 class="h6 card-title">{{ mention.product.name }}</h3>
-                            
-                            {% if mention.score %}
-                            <div class="mb-2">
-                                <span class="badge bg-success">Nota: {{ mention.score }}</span>
-                            </div>
-                            {% endif %}
-                            
-                            {% if mention.editor_notes %}
-                            <p class="card-text small text-muted">{{ mention.editor_notes }}</p>
-                            {% endif %}
-                            
-                            {% if mention.product.current_price %}
-                            <p class="fw-bold text-success">
-                                R$ {{ mention.product.current_price|floatformat:2 }}
-                            </p>
-                            {% endif %}
-                            
-                            {% if mention.recommended_link %}
-                            <a href="{{ mention.recommended_link.get_affiliate_url }}" 
-                               class="btn btn-success btn-sm w-100" 
-                               target="_blank" 
-                               rel="nofollow sponsored">
-                                <i class="fas fa-shopping-cart"></i> 
-                                Comprar na {{ mention.recommended_link.platform.name }}
-                            </a>
-                            {% else %}
-                            <a href="{{ mention.product.get_absolute_url }}" class="btn btn-primary btn-sm w-100">
-                                <i class="fas fa-eye"></i> Ver Detalhes
-                            </a>
-                            {% endif %}
+                        {% if mention.score %}
+                        <div class="mb-2">
+                            <span class="badge bg-success">Nota: {{ mention.score }}</span>
                         </div>
+                        {% endif %}
+                        
+                        {% if mention.editor_notes %}
+                        <p class="card-text small text-muted">{{ mention.editor_notes }}</p>
+                        {% endif %}
+                        
+                        {% if mention.product.current_price %}
+                        <p class="fw-bold text-success">
+                            R$ {{ mention.product.current_price|format_brl }}
+                        </p>
+                        {% endif %}
+                        
+                        {% if mention.recommended_link %}
+                        <a href="{{ mention.recommended_link.get_affiliate_url }}" 
+                        class="btn btn-success btn-sm w-100" 
+                        target="_blank" 
+                        rel="nofollow sponsored">
+                            <i class="fas fa-shopping-cart"></i> 
+                            Comprar na {{ mention.recommended_link.platform.name }}
+                        </a>
+                        {% else %}
+                        <a href="{{ mention.product.get_absolute_url }}" class="btn btn-primary btn-sm w-100">
+                            <i class="fas fa-eye"></i> Ver Detalhes
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
-                {% endfor %}
             </div>
-        </section>
-        {% endif %}
+            {% endfor %}
         
         <!-- Compartilhar -->
         <div class="d-flex gap-2 my-4">
